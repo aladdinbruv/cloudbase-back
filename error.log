@@ -1,0 +1,3 @@
+{"level":"error","message":"Invalid Signature 9776e820c4ab47a8a109e7ea57c7b86394e9e8fb. String to sign - 'folder=originals&timestamp=1730382431'.","timestamp":"2024-10-31T13:47:11.805Z"}
+{"level":"error","message":"Invalid Signature 75ac0400bad79a77bf523b5e06fa94d9616befcc. String to sign - 'folder=originals&timestamp=1730382448'.","timestamp":"2024-10-31T13:47:29.087Z"}
+{"level":"error","message":"Invalid Signature 341789c74fcf720e0c7adb7bd4adb9f6a2d2df2d. String to sign - 'folder=originals&timestamp=1730382630'.","timestamp":"2024-10-31T13:50:31.347Z"}
