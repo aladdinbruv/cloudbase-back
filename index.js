@@ -94,7 +94,7 @@ app.use((req, res, next) => {
 
 // CORS configuration
 const corsOptions = {
-  origin: 'https://image-upload-client-990s0k749-aladdinbruvs-projects.vercel.app', // Update this to match the URL of your React app
+  origin: 'https://image-upload-client-6pqwg8zk6-aladdinbruvs-projects.vercel.app', // Update this to match the URL of your React app
   optionsSuccessStatus: 200
 };
 
@@ -193,16 +193,21 @@ app.get('/metrics', async (req, res) => {
   res.set('Content-Type', promClient.register.contentType);
   res.end(await promClient.register.metrics());
 });
+
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
   try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, 10); // Use a salt round of 10
     const newUser = new User({ username, password: hashedPassword });
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    logger.error(error.stack);
+    logger.error('Error registering user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -224,7 +229,7 @@ app.post('/login', async (req, res) => {
     const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {
-    logger.error(error.stack);
+    logger.error('Error logging in user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
