@@ -146,11 +146,12 @@ app.post('/upload', authenticateJWT, upload.single('image'), async (req, res) =>
   try {
     const filePath = path.join(__dirname, 'uploads', req.file.filename);
     const optimizedPath = path.join(__dirname, 'uploads', 'optimized-' + req.file.filename);
+    const format = req.body.format || 'jpeg'; // Default to 'jpeg' if no format is provided
 
     // Optimize the image
     await sharp(filePath)
       .resize(800, 800, { fit: 'inside' })
-      .toFormat('jpeg', { quality: 80 })
+      .toFormat(format, { quality: 80 })
       .toFile(optimizedPath);
 
     // Upload original image to Cloudinary
@@ -176,7 +177,7 @@ app.post('/upload', authenticateJWT, upload.single('image'), async (req, res) =>
       optimizedUrl: optimizedImage.secure_url
     });
   } catch (error) {
-    logger.error(error.message);
+    logger.error(error.stack);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -204,7 +205,7 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  logger.error(err.message);
+  logger.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
