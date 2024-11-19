@@ -93,7 +93,7 @@ app.use((req, res, next) => {
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:3001', // Update this to match the URL of your React app
+  origin: 'image-upload-client-eta.vercel.app', // Update this to match the URL of your React app
   optionsSuccessStatus: 200
 };
 
