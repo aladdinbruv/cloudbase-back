@@ -93,7 +93,7 @@ app.use((req, res, next) => {
 
 // CORS configuration
 const corsOptions = {
-  origin: 'image-upload-client-eta.vercel.app', // Update this to match the URL of your React app
+  origin: 'https://image-upload-client-nbj7p8zpy-aladdinbruvs-projects.vercel.app', // Update this to match the URL of your React app
   optionsSuccessStatus: 200
 };
 
