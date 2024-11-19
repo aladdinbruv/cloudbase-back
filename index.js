@@ -12,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 const winston = require('winston');
 const mongoose = require('mongoose');
 const cloudinary = require('cloudinary').v2;
+const bcrypt = require('bcrypt');
 require('dotenv').config(); // Load environment variables from .env file
 
 // Ensure the uploads directory exists
@@ -133,6 +134,12 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+});
+
+const User = mongoose.model('User', userSchema);
 
 const imageSchema = new mongoose.Schema({
   originalUrl: String,
@@ -186,15 +193,39 @@ app.get('/metrics', async (req, res) => {
   res.set('Content-Type', promClient.register.contentType);
   res.end(await promClient.register.metrics());
 });
-
-app.post('/login', (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, password } = req.body;
-  // Replace with your own user authentication logic
-  if (username === 'user' && password === 'password') {
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const newUser = new User({ username, password: hashedPassword });
+    await newUser.save();
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    logger.error(error.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
     const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
-  } else {
-    res.status(401).json({ message: 'Invalid username or password' });
+  } catch (error) {
+    logger.error(error.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
